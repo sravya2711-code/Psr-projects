@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E1B24">
+<title>Project Accounts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0E1B24; --ink2:#3C4E5A; --ink3:#7C8B96;
+  --paper:#E7EBF0; --card:#FFFFFF; --line:#D3DAE2;
+  --varanasi:#E0A106; --psr:#3B5BA5; --nri:#0F766E;
+  --rust:#9A3412; --ok:#15803D;
+  --accent:var(--varanasi);
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px; line-height:1.4;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.disp{font-family:Archivo,system-ui,sans-serif;letter-spacing:-.01em;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+
+/* header */
+header{
+  position:sticky;top:0;z-index:40;background:var(--ink);color:#fff;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 10px;
+}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-family:Archivo;font-weight:700;font-size:17px;letter-spacing:.02em}
+.brand small{display:block;font-weight:500;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#8AA0AE}
+.iconbtn{width:36px;height:36px;border-radius:10px;background:#1D2F3B;color:#fff;font-size:16px;display:grid;place-items:center}
+.sync{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8AA0AE;margin-top:6px}
+.sync b{color:#fff;font-weight:600}
+
+/* tabs */
+nav.tabs{display:flex;gap:6px;margin-top:12px}
+nav.tabs button{
+  flex:1;padding:9px 4px;border-radius:10px;background:#1D2F3B;color:#9FB2BE;
+  font-family:Archivo;font-weight:600;font-size:12.5px;letter-spacing:.02em;
+  border-bottom:3px solid transparent;
+}
+nav.tabs button.on{background:#fff;color:var(--ink)}
+nav.tabs button.on[data-k="varanasi"]{border-color:var(--varanasi)}
+nav.tabs button.on[data-k="psr"]{border-color:var(--psr)}
+nav.tabs button.on[data-k="nri"]{border-color:var(--nri)}
+
+main{padding:14px 14px 0;max-width:720px;margin:0 auto}
+
+/* cards */
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(14,27,36,.06)}
+.eyebrow{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+
+/* summary */
+.total{font-family:"IBM Plex Mono";font-weight:600;font-size:34px;letter-spacing:-.02em;margin-top:2px;line-height:1.1}
+.bar{height:6px;border-radius:3px;background:var(--accent);margin:12px 0 0}
+.mini{display:flex;gap:10px;margin-top:12px}
+.mini div{flex:1;border-top:1px solid var(--line);padding-top:8px}
+.mini .v{font-family:"IBM Plex Mono";font-weight:600;font-size:16px}
+.mini .l{font-size:11px;color:var(--ink3);margin-top:1px}
+
+/* filter row */
+.tools{display:flex;gap:8px;margin-bottom:12px}
+.tools input,.tools select{
+  flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px
+}
+
+/* category ledger */
+.ledger{padding:0;overflow:hidden}
+.crow{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.crow:last-child{border-bottom:none}
+.dot{width:8px;height:8px;border-radius:2px;background:var(--accent);flex:none}
+.cname{flex:1;font-weight:600;font-size:14px;min-width:0}
+.cname span{display:block;font-weight:400;font-size:11.5px;color:var(--ink3)}
+.camt{font-family:"IBM Plex Mono";font-weight:600;font-size:14.5px}
+.cpc{width:38px;text-align:right;font-family:"IBM Plex Mono";font-size:11px;color:var(--ink3)}
+.track{height:3px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--accent)}
+
+/* entries */
+.entry{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:none}
+.entry .m{flex:1;min-width:0}
+.entry .t{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry .s{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.entry .a{font-family:"IBM Plex Mono";font-weight:600;font-size:14px;white-space:nowrap}
+.tag{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;background:var(--paper);border-radius:5px;padding:2px 5px;margin-left:6px;color:var(--ink2);font-weight:600}
+.kebab{width:30px;height:30px;border-radius:8px;color:var(--ink3);font-size:17px;display:grid;place-items:center;flex:none}
+
+.empty{padding:34px 18px;text-align:center;color:var(--ink3);font-size:14px}
+.empty b{display:block;color:var(--ink);font-family:Archivo;font-size:15px;margin-bottom:4px}
+
+/* fab */
+.fab{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(18px + env(safe-area-inset-bottom));z-index:45;
+  background:var(--ink);color:#fff;border-radius:999px;padding:14px 26px;
+  font-family:Archivo;font-weight:600;font-size:15px;box-shadow:0 6px 20px rgba(14,27,36,.28)
+}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(14,27,36,.45);z-index:60;display:none}
+.scrim.on{display:block}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--paper);
+  border-radius:20px 20px 0 0;max-height:92vh;overflow:auto;
+  padding:6px 14px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);
+  transition:transform .22s ease
+}
+.sheet.on{transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.sheet{transition:none}}
+.grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:8px auto 12px}
+.sheet h2{font-size:18px;margin-bottom:12px}
+label{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:12px 0 5px}
+input,select,textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px
+}
+textarea{min-height:64px;resize:vertical}
+.two{display:flex;gap:8px}.two>*{flex:1;min-width:0}
+.btn{display:block;width:100%;background:var(--ink);color:#fff;border-radius:12px;padding:14px;font-family:Archivo;font-weight:600;font-size:15px;margin-top:16px;text-align:center}
+.btn.ghost{background:transparent;color:var(--ink2);border:1px solid var(--line);margin-top:8px}
+.btn.danger{background:transparent;color:var(--rust);border:1px solid #E5C4B6;margin-top:8px}
+.pick{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px;margin-bottom:7px;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.pick b{font-weight:600}
+.pick em{font-style:normal;font-size:11px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase}
+.note{font-size:12.5px;color:var(--ink3);line-height:1.5;margin-top:10px}
+.toast{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:80;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div class="brand">Project Accounts<small id="hsub">Varanasi</small></div>
+    <div style="display:flex;gap:8px">
+      <button class="iconbtn" id="btnCats" title="Categories">☰</button>
+      <button class="iconbtn" id="btnSet" title="Settings">⚙</button>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button data-k="varanasi" class="on">Varanasi</button>
+    <button data-k="psr">PSR Projects</button>
+    <button data-k="nri">NRI Amount</button>
+  </nav>
+  <div class="sync" id="syncline">Local only · <b>not synced</b></div>
+</header>
+
+<main id="view"></main>
+
+<button class="fab" id="fab">+ Add entry</button>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- storage ---------- */
+const K='psr_varanasi_accounts_v1';
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+const DEFAULT_CATS=[
+ ['Land & Registration','Pre-construction'],
+ ['Permissions & Approvals','Pre-construction'],
+ ['Bribe / Facilitation','Pre-construction'],
+ ['Architect & Consultants','Pre-construction'],
+ ['Survey & Soil Testing','Pre-construction'],
+ ['Cement','Materials'],
+ ['Steel','Materials'],
+ ['Sand & Aggregate','Materials'],
+ ['Bricks & Blocks','Materials'],
+ ['Tiles & Flooring','Materials'],
+ ['Doors & Windows','Materials'],
+ ['Wood & Carpentry','Materials'],
+ ['Paint & Finishing','Materials'],
+ ['Hardware & Tools','Materials'],
+ ['Labour & Wages','Works'],
+ ['Contractor Payments','Works'],
+ ['Electrical','Works'],
+ ['Plumbing & Sanitary','Works'],
+ ['Machinery & Rental','Works'],
+ ['Transport & Freight','Works'],
+ ['Interiors & Furniture','Works'],
+ ['Site Water & Power','Site'],
+ ['Site Food & Tea','Site'],
+ ['Watchman & Security','Site'],
+ ['Site Office & Misc','Site'],
+ ['Taxes & GST','Finance'],
+ ['Loan & Interest','Finance'],
+];
+
+function fresh(){
+  return{
+    cats:DEFAULT_CATS.map((c,i)=>({id:'c'+i,name:c[0],group:c[1]})),
+    entries:[], nri:[], fb:'', key:'', updated:0
+  };
+}
+let S=fresh();
+try{const r=LS.get(K); if(r) S=Object.assign(fresh(),JSON.parse(r));}catch(e){}
+
+let tab='varanasi', open=null, q='', month='';
+
+/* ---------- helpers ---------- */
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const money=n=>'₹'+Math.round(n||0).toLocaleString('en-IN');
+const today=()=>new Date().toISOString().slice(0,10);
+const dshow=d=>{if(!d)return'';const[y,m,dd]=d.split('-');return dd+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1];};
+const catName=id=>(S.cats.find(c=>c.id===id)||{name:'Uncategorised'}).name;
+const esc=s=>(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1900);}
+
+function save(push=true){
+  S.updated=Date.now();
+  LS.set(K,JSON.stringify(S));
+  if(push) sync();
+  render();
+}
+
+/* ---------- firebase rest sync ---------- */
+let tmr=null;
+const ready=()=>S.fb&&S.key;
+const dbPath=()=>S.fb.replace(/\/$/,'')+'/vault/'+encodeURIComponent(S.key)+'/'+K+'.json';
+const payload=()=>{const{fb,key,...rest}=S;return rest;};
+const line=t=>document.getElementById('syncline').innerHTML=t;
+
+function sync(){
+  if(!ready()){line(S.fb?'Firebase · <b>access key needed</b>':'Local only · <b>not synced</b>');return;}
+  clearTimeout(tmr);
+  tmr=setTimeout(async()=>{
+    try{
+      const r=await fetch(dbPath(),{method:'PUT',body:JSON.stringify(payload())});
+      if(r.status===401||r.status===403){line('Firebase · <b>key rejected</b>');return;}
+      line('Firebase · <b>saved '+new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})+'</b>');
+    }catch(e){line('Firebase · <b>offline — will retry</b>');}
+  },700);
+}
+async function pull(){
+  if(!ready()) return;
+  try{
+    const r=await fetch(dbPath());
+    if(r.status===401||r.status===403){line('Firebase · <b>key rejected</b>');return;}
+    const d=await r.json();
+    if(d&&d.updated&&d.updated>(S.updated||0)){
+      const fb=S.fb,key=S.key;
+      S=Object.assign(fresh(),d,{fb,key});
+      LS.set(K,JSON.stringify(S)); render(); toast('Pulled latest from Firebase');
+    }
+    line('Firebase · <b>connected</b>');
+  }catch(e){}
+}
+
+/* ---------- data views ---------- */
+function rows(){
+  return S.entries.filter(e=>e.project===tab)
+    .filter(e=>!month||(e.date||'').slice(0,7)===month)
+    .filter(e=>{if(!q)return true;const s=q.toLowerCase();
+      return (e.desc||'').toLowerCase().includes(s)||(e.payee||'').toLowerCase().includes(s)||catName(e.cat).toLowerCase().includes(s);})
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
+const sum=a=>a.reduce((t,x)=>t+(+x.amount||0),0);
+function nriTotal(){return S.nri.reduce((t,x)=>t+(+x.inr||0),0);}
+function spentAll(){return sum(S.entries);}
+function months(){
+  const m=[...new Set(S.entries.filter(e=>e.project===tab).map(e=>(e.date||'').slice(0,7)))].filter(Boolean).sort().reverse();
+  return m;
+}
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===tab));
+  document.documentElement.style.setProperty('--accent',tab==='varanasi'?'var(--varanasi)':tab==='psr'?'var(--psr)':'var(--nri)');
+  document.getElementById('hsub').textContent=tab==='varanasi'?'Varanasi accounts':tab==='psr'?'PSR projects accounts':'NRI funds received';
+  document.getElementById('fab').textContent=tab==='nri'?'+ Add receipt':'+ Add entry';
+  document.getElementById('view').innerHTML = tab==='nri'?viewNRI():viewProject();
+  bind();
+}
+
+function viewProject(){
+  const r=rows(), total=sum(r);
+  const thisMon=sum(r.filter(e=>(e.date||'').slice(0,7)===today().slice(0,7)));
+  const byCat={};
+  r.forEach(e=>{byCat[e.cat]=(byCat[e.cat]||0)+(+e.amount||0)});
+  const list=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const max=list.length?list[0][1]:1;
+
+  let h=`<div class="card">
+    <div class="eyebrow">${tab==='varanasi'?'Varanasi':'PSR projects'} · total spent</div>
+    <div class="total">${money(total)}</div>
+    <div class="bar"></div>
+    <div class="mini">
+      <div><div class="v">${money(thisMon)}</div><div class="l">This month</div></div>
+      <div><div class="v">${r.length}</div><div class="l">Entries</div></div>
+      <div><div class="v">${list.length}</div><div class="l">Categories used</div></div>
+    </div>
+  </div>
+
+  <div class="tools">
+    <input id="q" placeholder="Search payee, note, category" value="${esc(q)}">
+    <select id="mon" style="flex:0 0 128px">
+      <option value="">All months</option>
+      ${months().map(m=>`<option value="${m}" ${m===month?'selected':''}>${dshow(m+'-01').slice(3)} ${m.slice(0,4)}</option>`).join('')}
+    </select>
+  </div>`;
+
+  if(!list.length){
+    h+=`<div class="card empty"><b>Nothing recorded yet</b>Add your first payment for this project and it will group itself under a category.</div>`;
+    return h;
+  }
+
+  h+='<div class="card ledger">';
+  list.forEach(([cid,amt])=>{
+    const ents=r.filter(e=>e.cat===cid);
+    const isOpen=open===cid;
+    h+=`<button class="crow" data-cat="${cid}">
+      <span class="dot"></span>
+      <span class="cname">${esc(catName(cid))}<span>${ents.length} entr${ents.length===1?'y':'ies'}</span>
+        <span class="track"><i style="width:${Math.max(4,amt/max*100)}%"></i></span>
+      </span>
+      <span><span class="camt">${money(amt)}</span></span>
+      <span class="cpc">${total?Math.round(amt/total*100):0}%</span>
+    </button>`;
+    if(isOpen){
+      ents.forEach(e=>{
+        h+=`<div class="entry">
+          <div class="m">
+            <div class="t">${esc(e.desc||catName(e.cat))}</div>
+            <div class="s">${dshow(e.date)}${e.payee?' · '+esc(e.payee):''}<span class="tag">${esc(e.mode||'cash')}</span></div>
+          </div>
+          <div class="a">${money(e.amount)}</div>
+          <button class="kebab" data-edit="${e.id}">⋯</button>
+        </div>`;
+      });
+    }
+  });
+  h+='</div>';
+  return h;
+}
+
+function viewNRI(){
+  const recd=nriTotal(), spent=spentAll();
+  const av=sum(S.entries.filter(e=>e.project==='varanasi'));
+  const ap=sum(S.entries.filter(e=>e.project==='psr'));
+  let h=`<div class="card">
+    <div class="eyebrow">NRI amount received (total)</div>
+    <div class="total">${money(recd)}</div>
+    <div class="bar"></div>
+    <div class="mini">
+      <div><div class="v">${money(spent)}</div><div class="l">Spent (both projects)</div></div>
+      <div><div class="v" style="color:${recd-spent<0?'var(--rust)':'var(--ok)'}">${money(recd-spent)}</div><div class="l">Balance in hand</div></div>
+    </div>
+    <div class="mini">
+      <div><div class="v">${money(av)}</div><div class="l">Varanasi</div></div>
+      <div><div class="v">${money(ap)}</div><div class="l">PSR projects</div></div>
+    </div>
+  </div>`;
+
+  if(!S.nri.length) return h+`<div class="card empty"><b>No receipts yet</b>Record each amount sent from abroad — sender, date, foreign currency and the rupees credited.</div>`;
+
+  h+='<div class="card ledger">';
+  S.nri.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(n=>{
+    h+=`<div class="entry">
+      <div class="m">
+        <div class="t">${esc(n.from||'Received')}</div>
+        <div class="s">${dshow(n.date)}${n.fx?' · '+esc(n.cur||'USD')+' '+n.fx+(n.rate?' @ '+n.rate:''):''}${n.to?'<span class="tag">'+esc(n.to)+'</span>':''}</div>
+      </div>
+      <div class="a">${money(n.inr)}</div>
+      <button class="kebab" data-nri="${n.id}">⋯</button>
+    </div>`;
+  });
+  return h+'</div>';
+}
+
+function bind(){
+  document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{open=open===b.dataset.cat?null:b.dataset.cat;render();});
+  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>entryForm(b.dataset.edit));
+  document.querySelectorAll('[data-nri]').forEach(b=>b.onclick=()=>nriForm(b.dataset.nri));
+  const qi=document.getElementById('q');
+  if(qi) qi.oninput=e=>{q=e.target.value;const p=e.target.selectionStart;render();const n=document.getElementById('q');n.focus();n.setSelectionRange(p,p);};
+  const mo=document.getElementById('mon');
+  if(mo) mo.onchange=e=>{month=e.target.value;render();};
+}
+
+/* ---------- sheet ---------- */
+function sheet(html){
+  document.getElementById('sheetBody').innerHTML=html;
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+}
+function close(){
+  document.getElementById('scrim').classList.remove('on');
+  document.getElementById('sheet').classList.remove('on');
+}
+document.getElementById('scrim').onclick=close;
+
+/* ---------- entry form ---------- */
+function entryForm(id){
+  const e=S.entries.find(x=>x.id===id)||{id:null,project:tab,date:today(),cat:S.cats[0].id,amount:'',desc:'',payee:'',mode:'Cash',notes:''};
+  const groups=[...new Set(S.cats.map(c=>c.group||'Other'))];
+  sheet(`
+    <h2 class="disp">${id?'Edit entry':'New entry'}</h2>
+    <label>Project</label>
+    <select id="f_project">
+      <option value="varanasi" ${e.project==='varanasi'?'selected':''}>Varanasi accounts</option>
+      <option value="psr" ${e.project==='psr'?'selected':''}>PSR projects accounts</option>
+    </select>
+    <label>Category</label>
+    <select id="f_cat">
+      ${groups.map(g=>`<optgroup label="${esc(g)}">${S.cats.filter(c=>(c.group||'Other')===g).map(c=>`<option value="${c.id}" ${c.id===e.cat?'selected':''}>${esc(c.name)}</option>`).join('')}</optgroup>`).join('')}
+    </select>
+    <div class="two">
+      <div><label>Amount ₹</label><input id="f_amount" type="number" inputmode="decimal" value="${e.amount}" placeholder="0"></div>
+      <div><label>Date</label><input id="f_date" type="date" value="${e.date}"></div>
+    </div>
+    <label>What for</label>
+    <input id="f_desc" value="${esc(e.desc)}" placeholder="e.g. 40 bags cement">
+    <div class="two">
+      <div><label>Paid to</label><input id="f_payee" value="${esc(e.payee)}" placeholder="Name / firm"></div>
+      <div><label>Mode</label><select id="f_mode">${['Cash','Bank','UPI','Cheque'].map(m=>`<option ${m===e.mode?'selected':''}>${m}</option>`).join('')}</select></div>
+    </div>
+    <label>Notes</label>
+    <textarea id="f_notes" placeholder="Bill number, pending balance, anything to remember">${esc(e.notes)}</textarea>
+    <button class="btn" id="f_save">${id?'Save changes':'Add entry'}</button>
+    ${id?'<button class="btn danger" id="f_del">Delete entry</button>':''}
+    <button class="btn ghost" onclick="close_()">Cancel</button>
+  `);
+  document.getElementById('f_save').onclick=()=>{
+    const amt=+document.getElementById('f_amount').value;
+    if(!amt){toast('Enter an amount first');return;}
+    const o={
+      id:e.id||uid(),
+      project:document.getElementById('f_project').value,
+      cat:document.getElementById('f_cat').value,
+      amount:amt,
+      date:document.getElementById('f_date').value||today(),
+      desc:document.getElementById('f_desc').value.trim(),
+      payee:document.getElementById('f_payee').value.trim(),
+      mode:document.getElementById('f_mode').value,
+      notes:document.getElementById('f_notes').value.trim()
+    };
+    if(e.id) S.entries=S.entries.map(x=>x.id===e.id?o:x); else S.entries.push(o);
+    close(); save(); toast(e.id?'Entry updated':'Entry added');
+  };
+  if(id) document.getElementById('f_del').onclick=()=>{
+    if(!confirm('Delete this entry permanently?'))return;
+    S.entries=S.entries.filter(x=>x.id!==id); close(); save(); toast('Entry deleted');
+  };
+}
+
+/* ---------- NRI form ---------- */
+function nriForm(id){
+  const n=S.nri.find(x=>x.id===id)||{id:null,date:today(),from:'',inr:'',fx:'',cur:'USD',rate:'',to:'',notes:''};
+  sheet(`
+    <h2 class="disp">${id?'Edit receipt':'NRI amount received'}</h2>
+    <div class="two">
+      <div><label>Amount credited ₹</label><input id="n_inr" type="number" inputmode="decimal" value="${n.inr}" placeholder="0"></div>
+      <div><label>Date</label><input id="n_date" type="date" value="${n.date}"></div>
+    </div>
+    <label>Sent by</label>
+    <input id="n_from" value="${esc(n.from)}" placeholder="Name of sender">
+    <div class="two">
+      <div><label>Foreign amount</label><input id="n_fx" type="number" inputmode="decimal" value="${n.fx}" placeholder="0"></div>
+      <div><label>Currency</label><select id="n_cur">${['USD','CAD','GBP','AED','AUD','EUR'].map(c=>`<option ${c===n.cur?'selected':''}>${c}</option>`).join('')}</select></div>
+    </div>
+    <div class="two">
+      <div><label>Rate</label><input id="n_rate" type="number" inputmode="decimal" value="${n.rate}" placeholder="e.g. 86.4"></div>
+      <div><label>Meant for</label><select id="n_to">${['','Varanasi','PSR projects','Both / general'].map(c=>`<option value="${c}" ${c===n.to?'selected':''}>${c||'Not decided'}</option>`).join('')}</select></div>
+    </div>
+    <label>Notes</label>
+    <textarea id="n_notes" placeholder="Bank, reference number">${esc(n.notes)}</textarea>
+    <button class="btn" id="n_save">${id?'Save changes':'Add receipt'}</button>
+    ${id?'<button class="btn danger" id="n_del">Delete receipt</button>':''}
+    <button class="btn ghost" onclick="close_()">Cancel</button>
+  `);
+  document.getElementById('n_save').onclick=()=>{
+    const v=+document.getElementById('n_inr').value;
+    if(!v){toast('Enter the rupee amount');return;}
+    const o={id:n.id||uid(),inr:v,date:document.getElementById('n_date').value||today(),
+      from:document.getElementById('n_from').value.trim(),fx:document.getElementById('n_fx').value,
+      cur:document.getElementById('n_cur').value,rate:document.getElementById('n_rate').value,
+      to:document.getElementById('n_to').value,notes:document.getElementById('n_notes').value.trim()};
+    if(n.id) S.nri=S.nri.map(x=>x.id===n.id?o:x); else S.nri.push(o);
+    close(); save(); toast(n.id?'Receipt updated':'Receipt added');
+  };
+  if(id) document.getElementById('n_del').onclick=()=>{
+    if(!confirm('Delete this receipt permanently?'))return;
+    S.nri=S.nri.filter(x=>x.id!==id); close(); save(); toast('Receipt deleted');
+  };
+}
+
+/* ---------- categories ---------- */
+function catsSheet(){
+  const used={};S.entries.forEach(e=>used[e.cat]=(used[e.cat]||0)+1);
+  const groups=[...new Set(S.cats.map(c=>c.group||'Other'))];
+  sheet(`
+    <h2 class="disp">Categories</h2>
+    <p class="note" style="margin-top:0">Tap a category to rename it, move all its entries somewhere else, or remove it.</p>
+    <button class="btn" id="c_new">+ Add a category</button>
+    ${groups.map(g=>`
+      <label>${esc(g)}</label>
+      ${S.cats.filter(c=>(c.group||'Other')===g).map(c=>`
+        <button class="pick" data-c="${c.id}"><b>${esc(c.name)}</b><em>${used[c.id]||0} entries</em></button>`).join('')}
+    `).join('')}
+    <button class="btn ghost" onclick="close_()">Done</button>
+  `);
+  document.getElementById('c_new').onclick=()=>catEdit(null);
+  document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>catEdit(b.dataset.c));
+}
+
+function catEdit(id){
+  const c=S.cats.find(x=>x.id===id)||{id:null,name:'',group:'Materials'};
+  const groups=[...new Set(S.cats.map(x=>x.group||'Other').concat(['Pre-construction','Materials','Works','Site','Finance','Other']))];
+  const n=S.entries.filter(e=>e.cat===id).length;
+  sheet(`
+    <h2 class="disp">${id?'Edit category':'New category'}</h2>
+    <label>Name</label>
+    <input id="c_name" value="${esc(c.name)}" placeholder="e.g. Borewell">
+    <label>Group it under</label>
+    <select id="c_grp">${groups.map(g=>`<option ${g===c.group?'selected':''}>${esc(g)}</option>`).join('')}</select>
+    <button class="btn" id="c_save">${id?'Save changes':'Add category'}</button>
+    ${id?`
+      <label>Move entries</label>
+      <select id="c_move"><option value="">Choose a category…</option>${S.cats.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>
+      <button class="btn ghost" id="c_movebtn">Move all ${n} entries there</button>
+      <button class="btn danger" id="c_del">Delete category</button>`:''}
+    <button class="btn ghost" id="c_back">Back</button>
+  `);
+  document.getElementById('c_back').onclick=catsSheet;
+  document.getElementById('c_save').onclick=()=>{
+    const nm=document.getElementById('c_name').value.trim();
+    if(!nm){toast('Give the category a name');return;}
+    const g=document.getElementById('c_grp').value;
+    if(id) S.cats=S.cats.map(x=>x.id===id?{...x,name:nm,group:g}:x);
+    else S.cats.push({id:uid(),name:nm,group:g});
+    save(); catsSheet(); toast(id?'Category updated':'Category added');
+  };
+  if(id){
+    document.getElementById('c_movebtn').onclick=()=>{
+      const t=document.getElementById('c_move').value;
+      if(!t){toast('Pick where the entries should go');return;}
+      S.entries=S.entries.map(e=>e.cat===id?{...e,cat:t}:e);
+      save(); catsSheet(); toast(n+' entries moved to '+catName(t));
+    };
+    document.getElementById('c_del').onclick=()=>{
+      if(n){toast('Move its '+n+' entries out first');return;}
+      if(!confirm('Delete this category?'))return;
+      S.cats=S.cats.filter(x=>x.id!==id); save(); catsSheet(); toast('Category deleted');
+    };
+  }
+}
+
+/* ---------- settings ---------- */
+function setSheet(){
+  sheet(`
+    <h2 class="disp">Settings</h2>
+    <label>Firebase database URL</label>
+    <input id="s_fb" value="${esc(S.fb)}" placeholder="https://yourdb.firebaseio.com">
+    <label>Access key</label>
+    <input id="s_key" value="${esc(S.key)}" placeholder="Your secret key" autocomplete="off">
+    <p class="note">Both stay on this phone only — they are never written into the page, so nobody reading the source can reach your books. Enter the same two on any other device you want to use.</p>
+    <button class="btn" id="s_save">Save and sync now</button>
+    <label>Backup</label>
+    <button class="btn ghost" id="s_csv">Download CSV of all entries</button>
+    <button class="btn ghost" id="s_json">Download full backup (JSON)</button>
+    <label>Restore</label>
+    <input id="s_file" type="file" accept=".json">
+    <button class="btn ghost" onclick="close_()">Close</button>
+  `);
+  document.getElementById('s_save').onclick=()=>{
+    S.fb=document.getElementById('s_fb').value.trim();
+    S.key=document.getElementById('s_key').value.trim();
+    save(); pull(); close(); toast(ready()?'Sync settings saved':'Saved — add both URL and key to sync');
+  };
+  document.getElementById('s_csv').onclick=()=>{
+    const head='Project,Date,Category,Description,Paid to,Mode,Amount,Notes\n';
+    const body=S.entries.map(e=>[e.project,e.date,catName(e.cat),e.desc,e.payee,e.mode,e.amount,e.notes]
+      .map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const nri='\n\nNRI RECEIPTS\nDate,From,Currency,Foreign amount,Rate,INR,Meant for,Notes\n'+
+      S.nri.map(n=>[n.date,n.from,n.cur,n.fx,n.rate,n.inr,n.to,n.notes].map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    dl('project-accounts.csv',head+body+nri,'text/csv');
+  };
+  document.getElementById('s_json').onclick=()=>dl('project-accounts-backup.json',JSON.stringify(S),'application/json');
+  document.getElementById('s_file').onchange=ev=>{
+    const f=ev.target.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{try{S=Object.assign(fresh(),JSON.parse(r.result));save();close();toast('Backup restored');}catch(e){toast('That file could not be read')}};
+    r.readAsText(f);
+  };
+}
+function dl(name,txt,type){
+  const b=new Blob([txt],{type}); const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),3000);
+}
+
+/* ---------- wiring ---------- */
+window.close_=close;
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.k;open=null;q='';month='';render();});
+document.getElementById('fab').onclick=()=>tab==='nri'?nriForm(null):entryForm(null);
+document.getElementById('btnCats').onclick=catsSheet;
+document.getElementById('btnSet').onclick=setSheet;
+
+render(); pull();
+setInterval(pull,60000);
+</script>
+</body>
+</html>
