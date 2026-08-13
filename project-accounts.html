@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0B1526">
+<title>Project Accounts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B1526; --ink2:#3D4C63; --ink3:#7C8AA0;
+  --paper:#EBEEF3; --card:#FFFFFF; --rule:#D6DCE5; --rule2:#E8ECF2;
+  --varanasi:#A97514; --psr:#2F5FA8; --nri:#0E7C6B;
+  --rust:#9A3412; --ok:#166534;
+  --accent:var(--varanasi);
+  --r:12px;
+  --pad:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px; line-height:1.45;
+  padding-bottom:calc(104px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+body.locked{overflow:hidden}
+h1,h2,h3,.disp{font-family:Chivo,system-ui,sans-serif;letter-spacing:-.015em;margin:0;font-weight:700}
+.num{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-weight:600;letter-spacing:-.02em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none;padding:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- masthead ---------- */
+header{
+  position:sticky;top:0;z-index:40;background:var(--ink);color:#fff;
+  padding:calc(12px + env(safe-area-inset-top)) var(--pad) 0;
+}
+.mast{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.brand{display:flex;gap:10px;align-items:flex-start}
+.spine{width:3px;height:34px;background:var(--accent);border-radius:2px;flex:none;margin-top:2px;transition:background .2s}
+.brand h1{font-size:16.5px;font-weight:800;letter-spacing:.01em;line-height:1.15}
+.brand p{margin:2px 0 0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8DA0B8;font-weight:500}
+.tools-top{display:flex;gap:8px;flex:none}
+.iconbtn{width:36px;height:36px;border-radius:9px;background:#1B2A40;color:#DCE5F0;font-size:15px;display:grid;place-items:center}
+.iconbtn:active{background:#26374F}
+
+nav.tabs{display:flex;gap:0;margin:14px 0 0;border-bottom:1px solid #24344B}
+nav.tabs button{
+  flex:1;padding:11px 4px 10px;color:#8DA0B8;
+  font-family:Chivo;font-weight:600;font-size:12.5px;letter-spacing:.02em;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+}
+nav.tabs button.on{color:#fff;border-bottom-color:var(--accent)}
+
+.status{display:flex;align-items:center;gap:7px;padding:7px 0 8px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8DA0B8}
+.status .led{width:6px;height:6px;border-radius:50%;background:#5A6B82;flex:none}
+.status.live .led{background:#37B37E}
+.status.warn .led{background:#E0A106}
+.status b{color:#D8E2EE;font-weight:600;letter-spacing:.06em}
+
+main{padding:var(--pad) var(--pad) 0;max-width:760px;margin:0 auto}
+
+/* ---------- sheet-style panels ---------- */
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+
+/* summary */
+.summary{padding:16px}
+.summary .total{font-size:35px;line-height:1.05;margin-top:5px}
+.summary .sub{font-size:12.5px;color:var(--ink2);margin-top:6px}
+
+/* signature: survey tape */
+.tape{position:relative;height:40px;margin:16px 0 4px;border:1px solid var(--rule);border-radius:6px;background:
+  repeating-linear-gradient(90deg,var(--rule2) 0 1px,transparent 1px 10%),
+  repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px 50%),
+  var(--card);
+  background-position:0 0;overflow:hidden}
+.tape i{position:absolute;left:0;top:0;bottom:0;width:var(--p,0%);background:rgba(42,74,120,.13);background:color-mix(in srgb,var(--accent) 16%,transparent);border-right:2px solid var(--accent);transition:width .35s ease}
+.tape u{position:absolute;left:8px;bottom:5px;font-family:"IBM Plex Mono";font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);text-decoration:none}
+.tape s{position:absolute;right:8px;top:5px;font-family:"IBM Plex Mono";font-size:12px;font-weight:600;color:var(--ink);text-decoration:none}
+.tapeleg{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);margin-top:2px}
+.tapeleg b{color:var(--ink2);font-weight:600}
+
+.stats{display:flex;border-top:1px solid var(--rule)}
+.stats div{flex:1;padding:11px 14px;border-right:1px solid var(--rule)}
+.stats div:last-child{border-right:none}
+.stats .v{font-family:"IBM Plex Mono";font-weight:600;font-size:15px;font-variant-numeric:tabular-nums}
+.stats .l{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-top:2px;font-weight:500}
+
+/* filters */
+.filters{display:flex;gap:8px;margin-bottom:14px}
+.filters input,.filters select{
+  flex:1;min-width:0;background:var(--card);border:1px solid var(--rule);
+  border-radius:9px;padding:10px 12px;font-size:14px
+}
+.filters select{flex:0 0 132px}
+
+/* ledger */
+.ledhead{display:flex;align-items:baseline;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--rule);background:#F7F9FB}
+.ledhead .cols{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+
+.grp{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#F7F9FB;border-bottom:1px solid var(--rule);border-top:1px solid var(--rule)}
+.grp:first-of-type{border-top:none}
+.grp .g{flex:1;font-family:Chivo;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.grp .gv{font-family:"IBM Plex Mono";font-size:12.5px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums}
+
+.crow{display:flex;align-items:center;gap:11px;padding:12px 14px;border-bottom:1px solid var(--rule2);width:100%;text-align:left}
+.crow[aria-expanded="true"]{background:#FAFBFD}
+.chev{width:14px;color:var(--ink3);font-size:11px;flex:none;transition:transform .18s}
+.crow[aria-expanded="true"] .chev{transform:rotate(90deg);color:var(--accent)}
+.cmeta{flex:1;min-width:0}
+.cname{font-weight:600;font-size:14.5px;line-height:1.25}
+.csub{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.track{height:2px;background:var(--rule2);border-radius:2px;margin-top:6px;overflow:hidden;max-width:180px}
+.track i{display:block;height:100%;background:var(--accent)}
+.cfig{text-align:right;flex:none}
+.camt{font-family:"IBM Plex Mono";font-weight:600;font-size:14.5px;font-variant-numeric:tabular-nums}
+.cpc{font-family:"IBM Plex Mono";font-size:10.5px;color:var(--ink3);margin-top:2px}
+
+.entry{display:flex;gap:10px;align-items:flex-start;padding:11px 14px;border-bottom:1px solid var(--rule2);position:relative}
+.entry.sub{padding-left:39px;background:#FAFBFD}
+.entry.sub:before{content:"";position:absolute;left:20px;top:0;bottom:0;width:1px;background:var(--rule)}
+.entry .m{flex:1;min-width:0}
+.entry .t{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry .s{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.entry .a{font-family:"IBM Plex Mono";font-weight:600;font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tag{display:inline-block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;background:var(--paper);border:1px solid var(--rule);border-radius:4px;padding:1px 5px;margin-left:6px;color:var(--ink2);font-weight:600}
+.kebab{width:32px;height:32px;border-radius:8px;color:var(--ink3);font-size:17px;display:grid;place-items:center;flex:none;margin:-4px -6px 0 0}
+.kebab:active{background:var(--paper)}
+.tfoot{display:flex;justify-content:space-between;padding:12px 14px;background:var(--ink);color:#fff}
+.tfoot span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#9FB2C8;font-weight:600;align-self:center}
+.tfoot b{font-family:"IBM Plex Mono";font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+
+.empty{padding:36px 20px;text-align:center;color:var(--ink3);font-size:13.5px;line-height:1.6}
+.empty b{display:block;color:var(--ink);font-family:Chivo;font-size:15.5px;margin-bottom:5px}
+
+/* fab */
+.fab{
+  position:fixed;left:50%;transform:translateX(-50%);
+  bottom:calc(20px + env(safe-area-inset-bottom));z-index:45;
+  background:var(--ink);color:#fff;border-radius:999px;padding:14px 24px;
+  font-family:Chivo;font-weight:700;font-size:14.5px;letter-spacing:.01em;
+  box-shadow:0 8px 22px rgba(11,21,38,.3);display:flex;align-items:center;gap:8px
+}
+.fab:active{transform:translateX(-50%) scale(.97)}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;background:rgba(11,21,38,.5);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--paper);
+  border-radius:18px 18px 0 0;max-height:90vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .24s cubic-bezier(.3,.8,.4,1);
+  box-shadow:0 -8px 30px rgba(11,21,38,.2)
+}
+.sheet.on{transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.sheet,.scrim,.tape i{transition:none}}
+.shead{
+  display:flex;align-items:center;gap:8px;padding:12px 12px 11px;
+  border-bottom:1px solid var(--rule);background:var(--card);
+  border-radius:18px 18px 0 0;flex:none;position:relative
+}
+.shead:before{content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);width:34px;height:3px;border-radius:2px;background:var(--rule)}
+.shead h2{flex:1;font-size:16px;text-align:center;padding-top:3px}
+.sbtn{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;color:var(--ink2);font-size:17px;flex:none}
+.sbtn:active{background:var(--paper)}
+.sbtn[hidden]{visibility:hidden;display:grid}
+.sbody{overflow:auto;-webkit-overflow-scrolling:touch;padding:4px 14px calc(24px + env(safe-area-inset-bottom))}
+
+label{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:16px 0 6px}
+input,select,textarea{
+  width:100%;background:var(--card);border:1px solid var(--rule);border-radius:9px;padding:12px;font-size:16px
+}
+textarea{min-height:66px;resize:vertical;font-family:inherit}
+.two{display:flex;gap:8px}.two>*{flex:1;min-width:0}
+.btn{display:block;width:100%;background:var(--ink);color:#fff;border-radius:10px;padding:14px;font-family:Chivo;font-weight:700;font-size:14.5px;margin-top:18px;text-align:center}
+.btn.ghost{background:transparent;color:var(--ink2);border:1px solid var(--rule);margin-top:8px}
+.btn.danger{background:transparent;color:var(--rust);border:1px solid #E3C6BB;margin-top:8px}
+.btn.accent{background:var(--accent)}
+.pick{
+  width:100%;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:9px;
+  padding:13px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;gap:10px
+}
+.pick b{font-weight:600;font-size:14.5px}
+.pick em{font-style:normal;font-size:10.5px;color:var(--ink3);letter-spacing:.09em;text-transform:uppercase;white-space:nowrap}
+.note{font-size:12.5px;color:var(--ink3);line-height:1.55;margin-top:10px}
+.toast{position:fixed;bottom:calc(90px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 16px;border-radius:9px;font-size:13.5px;z-index:80;opacity:0;pointer-events:none;transition:opacity .2s;max-width:88vw;text-align:center}
+.toast.on{opacity:1}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="mast">
+    <div class="brand">
+      <div class="spine" id="spine"></div>
+      <div>
+        <h1>Project Accounts</h1>
+        <p id="hsub">Varanasi</p>
+      </div>
+    </div>
+    <div class="tools-top">
+      <button class="iconbtn" id="btnCats" title="Categories" aria-label="Categories">☰</button>
+      <button class="iconbtn" id="btnSet" title="Settings" aria-label="Settings">⚙</button>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button data-k="varanasi" class="on">Varanasi</button>
+    <button data-k="psr">PSR Projects</button>
+    <button data-k="nri">NRI Funds</button>
+  </nav>
+  <div class="status" id="syncline"><span class="led"></span><span>Local only · <b>not synced</b></span></div>
+</header>
+
+<main id="view"></main>
+
+<button class="fab" id="fab">+ Record payment</button>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="shead">
+    <button class="sbtn" id="sheetBack" aria-label="Back" hidden>‹</button>
+    <h2 class="disp" id="sheetTitle">—</h2>
+    <button class="sbtn" id="sheetX" aria-label="Close">✕</button>
+  </div>
+  <div class="sbody" id="sheetBody"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ---------- storage ---------- */
+const K='psr_varanasi_accounts_v1';
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+const DEFAULT_CATS=[
+ ['Land & Registration','Pre-construction'],
+ ['Permissions & Approvals','Pre-construction'],
+ ['Bribe / Facilitation','Pre-construction'],
+ ['Architect & Consultants','Pre-construction'],
+ ['Survey & Soil Testing','Pre-construction'],
+ ['Cement','Materials'],
+ ['Steel','Materials'],
+ ['Sand & Aggregate','Materials'],
+ ['Bricks & Blocks','Materials'],
+ ['Tiles & Flooring','Materials'],
+ ['Doors & Windows','Materials'],
+ ['Wood & Carpentry','Materials'],
+ ['Paint & Finishing','Materials'],
+ ['Hardware & Tools','Materials'],
+ ['Labour & Wages','Works'],
+ ['Contractor Payments','Works'],
+ ['Electrical','Works'],
+ ['Plumbing & Sanitary','Works'],
+ ['Machinery & Rental','Works'],
+ ['Transport & Freight','Works'],
+ ['Interiors & Furniture','Works'],
+ ['Site Water & Power','Site'],
+ ['Site Food & Tea','Site'],
+ ['Watchman & Security','Site'],
+ ['Site Office & Misc','Site'],
+ ['Taxes & GST','Finance'],
+ ['Loan & Interest','Finance'],
+];
+const GROUP_ORDER=['Pre-construction','Materials','Works','Site','Finance','Other'];
+
+function fresh(){
+  return{
+    cats:DEFAULT_CATS.map((c,i)=>({id:'c'+i,name:c[0],group:c[1]})),
+    entries:[], nri:[], tomb:{}, fb:'', updated:0
+  };
+}
+let S=fresh();
+try{const r=LS.get(K); if(r) S=Object.assign(fresh(),JSON.parse(r));}catch(e){}
+
+const DEFAULT_FB='https://attendance-and-salary-tr-20681-default-rtdb.asia-southeast1.firebasedatabase.app';
+const NODE='psr_project_accounts_v1';
+if(!S.fb) S.fb=DEFAULT_FB;
+if(!S.tomb) S.tomb={};
+delete S.key;
+
+let tab='varanasi', open=null, q='', month='';
+
+/* ---------- helpers ---------- */
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const money=n=>'₹'+Math.round(n||0).toLocaleString('en-IN');
+const today=()=>new Date().toISOString().slice(0,10);
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dshow=d=>{if(!d)return'';const[y,m,dd]=d.split('-');return dd+' '+MON[+m-1];};
+const monShow=m=>{if(!m)return'';const[y,mm]=m.split('-');return MON[+mm-1]+' '+y;};
+const catName=id=>(S.cats.find(c=>c.id===id)||{name:'Uncategorised'}).name;
+const catGroup=id=>(S.cats.find(c=>c.id===id)||{group:'Other'}).group||'Other';
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const PROJ={varanasi:'Varanasi accounts',psr:'PSR projects accounts',nri:'NRI funds received'};
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),1900);}
+
+function save(push=true){
+  S.updated=Date.now();
+  LS.set(K,JSON.stringify(S));
+  if(push) sync();
+  render();
+}
+/* stamp a record with its edit time so the newest edit wins on merge */
+const stamp=o=>{o.m=Date.now();return o;};
+
+/* ---------- firebase rest sync (merge based) ---------- */
+let tmr=null, busy=false;
+const ready=()=>!!S.fb;
+const dbPath=()=>S.fb.replace(/\/$/,'')+'/'+NODE+'.json';
+const payload=()=>{const{fb,...rest}=S;return rest;};
+function line(html,cls){
+  const el=document.getElementById('syncline');
+  el.className='status'+(cls?' '+cls:'');
+  el.innerHTML='<span class="led"></span><span>'+html+'</span>';
+}
+const clock=()=>new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+/* merge two lists of records by id: newest edit wins, tombstones remove */
+function mergeList(local,remote,tomb){
+  const map={};
+  const add=x=>{ if(!x||!x.id) return; const c=map[x.id];
+    if(!c||(+x.m||0)>=(+c.m||0)) map[x.id]=x; };
+  (local||[]).forEach(add);
+  (remote||[]).forEach(add);
+  return Object.keys(map).map(k=>map[k])
+    .filter(x=>!(tomb[x.id]&&tomb[x.id]>=(+x.m||0)));
+}
+function mergeTomb(remote){
+  const t=Object.assign({},remote||{});
+  Object.keys(S.tomb||{}).forEach(k=>{ if(!t[k]||S.tomb[k]>t[k]) t[k]=S.tomb[k]; });
+  const cut=Date.now()-120*86400000;
+  Object.keys(t).forEach(k=>{ if(t[k]<cut) delete t[k]; });
+  return t;
+}
+
+/* fetch that gives up after 8s instead of hanging forever on a bad signal */
+function fetchT(url,opt,ms){
+  opt=opt||{}; ms=ms||8000;
+  const ac=new AbortController();
+  const t=setTimeout(()=>ac.abort(),ms);
+  return fetch(url,Object.assign({},opt,{signal:ac.signal}))
+    .finally(()=>clearTimeout(t));
+}
+
+/* one full cycle: read what is on Firebase, merge it with this phone, write back */
+async function syncNow(quiet){
+  if(!ready()){line('Local only · <b>not synced</b>');return;}
+  if(busy) return; busy=true;
+  try{
+    if(!quiet) line('Firebase · <b>syncing…</b>','warn');
+    const r=await fetchT(dbPath(),{cache:'no-store'});
+    if(!r.ok){ line('Firebase · <b>read blocked ('+r.status+')</b>','warn'); return; }
+    const d=await r.json();
+    if(d){
+      S.tomb=mergeTomb(d.tomb);
+      S.entries=mergeList(S.entries,d.entries,S.tomb);
+      S.nri=mergeList(S.nri,d.nri,S.tomb);
+      S.cats=mergeList(S.cats,d.cats,S.tomb);
+    }
+    LS.set(K,JSON.stringify(S));
+    render();
+    const w=await fetchT(dbPath(),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload())});
+    if(!w.ok){ line('Firebase · <b>write blocked ('+w.status+')</b>','warn'); return; }
+    line('Firebase · <b>synced '+clock()+'</b>','live');
+  }catch(e){
+    line('Firebase · <b>offline, will retry</b>','warn');
+  }finally{
+    busy=false;          /* always released, even on timeout or error */
+  }
+}
+function sync(){ clearTimeout(tmr); tmr=setTimeout(()=>syncNow(true),400); }
+const pull=()=>syncNow(true);
+
+/* live listener: Firebase pushes the moment the other phone saves */
+let es=null;
+function liveOn(){
+  if(!ready()||es) return;
+  try{
+    es=new EventSource(dbPath());
+    es.addEventListener('put',()=>pull());
+    es.addEventListener('patch',()=>pull());
+    es.onerror=()=>{ liveOff(); setTimeout(liveOn,5000); };
+  }catch(e){ es=null; }
+}
+function liveOff(){ if(es){ try{es.close()}catch(e){} es=null; } }
+
+/* ---------- data views ---------- */
+function rows(){
+  return S.entries.filter(e=>e.project===tab)
+    .filter(e=>!month||(e.date||'').slice(0,7)===month)
+    .filter(e=>{if(!q)return true;const s=q.toLowerCase();
+      return (e.desc||'').toLowerCase().includes(s)||(e.payee||'').toLowerCase().includes(s)||catName(e.cat).toLowerCase().includes(s);})
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+}
+const sum=a=>a.reduce((t,x)=>t+(+x.amount||0),0);
+const nriTotal=()=>S.nri.reduce((t,x)=>t+(+x.inr||0),0);
+const spentAll=()=>sum(S.entries);
+const spentOn=p=>sum(S.entries.filter(e=>e.project===p));
+function months(){
+  return [...new Set(S.entries.filter(e=>e.project===tab).map(e=>(e.date||'').slice(0,7)))].filter(Boolean).sort().reverse();
+}
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===tab));
+  document.documentElement.style.setProperty('--accent',tab==='varanasi'?'var(--varanasi)':tab==='psr'?'var(--psr)':'var(--nri)');
+  document.getElementById('hsub').textContent=PROJ[tab];
+  document.getElementById('fab').textContent=tab==='nri'?'+ Record receipt':'+ Record payment';
+  document.getElementById('view').innerHTML = tab==='nri'?viewNRI():viewProject();
+  bind();
+}
+
+/* the survey tape — how far the money has run against what came in */
+function tape(spent,base,capLabel){
+  const pc=base>0?Math.min(100,spent/base*100):0;
+  return `<div class="tape" style="--p:${pc.toFixed(1)}%">
+      <i></i><u>0</u><s>${base>0?Math.round(pc)+'%':'—'}</s>
+    </div>
+    <div class="tapeleg"><span>Spent <b>${money(spent)}</b></span><span>${esc(capLabel)} <b>${money(base)}</b></span></div>`;
+}
+
+function viewProject(){
+  const r=rows(), total=sum(r);
+  const thisMon=sum(r.filter(e=>(e.date||'').slice(0,7)===today().slice(0,7)));
+  const recd=nriTotal();
+  const base=recd>0?recd:spentAll();
+  const capLabel=recd>0?'Of funds received':'Of both projects';
+
+  const byCat={};
+  r.forEach(e=>{byCat[e.cat]=(byCat[e.cat]||0)+(+e.amount||0)});
+  const list=Object.entries(byCat).sort((a,b)=>b[1]-a[1]);
+  const max=list.length?list[0][1]:1;
+
+  let h=`<section class="panel">
+    <div class="summary">
+      <div class="eyebrow">${tab==='varanasi'?'Varanasi' :'PSR projects'} · total spent${month?' · '+esc(monShow(month)):''}</div>
+      <div class="total num">${money(total)}</div>
+      ${tape(total,base,capLabel)}
+    </div>
+    <div class="stats">
+      <div><div class="v">${money(thisMon)}</div><div class="l">This month</div></div>
+      <div><div class="v">${r.length}</div><div class="l">Entries</div></div>
+      <div><div class="v">${list.length}</div><div class="l">Categories</div></div>
+    </div>
+  </section>
+
+  <div class="filters">
+    <input id="q" placeholder="Search payee, note or category" value="${esc(q)}" autocomplete="off">
+    <select id="mon" aria-label="Month">
+      <option value="">All months</option>
+      ${months().map(m=>`<option value="${m}" ${m===month?'selected':''}>${esc(monShow(m))}</option>`).join('')}
+    </select>
+  </div>`;
+
+  if(!list.length){
+    h+=`<section class="panel"><div class="empty"><b>${q||month?'No entries match that':'Nothing recorded yet'}</b>${
+      q||month?'Clear the search or pick a different month.':'Record your first payment and it will file itself under a category.'}</div></section>`;
+    return h;
+  }
+
+  /* group the heads the way the books are kept */
+  const grouped={};
+  list.forEach(([cid,amt])=>{const g=catGroup(cid);(grouped[g]=grouped[g]||[]).push([cid,amt]);});
+  const gOrder=Object.keys(grouped).sort((a,b)=>{
+    const d=sum(grouped[b].map(x=>({amount:x[1]})))-sum(grouped[a].map(x=>({amount:x[1]})));
+    return d||GROUP_ORDER.indexOf(a)-GROUP_ORDER.indexOf(b);
+  });
+
+  h+=`<section class="panel">
+    <div class="ledhead"><span class="cols">Category</span><span class="cols">Amount · share</span></div>`;
+
+  gOrder.forEach(g=>{
+    const gt=grouped[g].reduce((t,x)=>t+x[1],0);
+    h+=`<div class="grp"><span class="g">${esc(g)}</span><span class="gv">${money(gt)}</span></div>`;
+    grouped[g].forEach(([cid,amt])=>{
+      const ents=r.filter(e=>e.cat===cid);
+      const isOpen=open===cid;
+      h+=`<button class="crow" data-cat="${cid}" aria-expanded="${isOpen}">
+        <span class="chev">▶</span>
+        <span class="cmeta">
+          <span class="cname">${esc(catName(cid))}</span>
+          <span class="csub">${ents.length} entr${ents.length===1?'y':'ies'}</span>
+          <span class="track"><i style="width:${Math.max(4,amt/max*100)}%"></i></span>
+        </span>
+        <span class="cfig"><span class="camt">${money(amt)}</span><span class="cpc">${total?Math.round(amt/total*100):0}%</span></span>
+      </button>`;
+      if(isOpen){
+        ents.forEach(e=>{
+          h+=`<div class="entry sub">
+            <div class="m">
+              <div class="t">${esc(e.desc||catName(e.cat))}</div>
+              <div class="s">${dshow(e.date)}${e.payee?' · '+esc(e.payee):''}<span class="tag">${esc(e.mode||'cash')}</span></div>
+            </div>
+            <div class="a">${money(e.amount)}</div>
+            <button class="kebab" data-edit="${e.id}" aria-label="Edit entry">⋯</button>
+          </div>`;
+        });
+      }
+    });
+  });
+
+  h+=`<div class="tfoot"><span>Total${month?' · '+esc(monShow(month)):''}</span><b>${money(total)}</b></div></section>`;
+  return h;
+}
+
+function viewNRI(){
+  const recd=nriTotal(), spent=spentAll();
+  const av=spentOn('varanasi'), ap=spentOn('psr');
+  const bal=recd-spent;
+
+  let h=`<section class="panel">
+    <div class="summary">
+      <div class="eyebrow">NRI funds received · total</div>
+      <div class="total num">${money(recd)}</div>
+      ${tape(spent,recd,'Received')}
+      <div class="sub">Balance in hand <b class="num" style="color:${bal<0?'var(--rust)':'var(--ok)'}">${money(bal)}</b></div>
+    </div>
+    <div class="stats">
+      <div><div class="v">${money(av)}</div><div class="l">Varanasi</div></div>
+      <div><div class="v">${money(ap)}</div><div class="l">PSR projects</div></div>
+      <div><div class="v">${S.nri.length}</div><div class="l">Receipts</div></div>
+    </div>
+  </section>`;
+
+  if(!S.nri.length) return h+`<section class="panel"><div class="empty"><b>No receipts yet</b>Record each amount sent from abroad — who sent it, the date, the foreign currency and the rupees credited.</div></section>`;
+
+  h+=`<section class="panel"><div class="ledhead"><span class="cols">Received from</span><span class="cols">Credited ₹</span></div>`;
+  S.nri.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(n=>{
+    h+=`<div class="entry">
+      <div class="m">
+        <div class="t">${esc(n.from||'Received')}</div>
+        <div class="s">${dshow(n.date)}${n.fx?' · '+esc(n.cur||'USD')+' '+esc(n.fx)+(n.rate?' @ '+esc(n.rate):''):''}${n.to?'<span class="tag">'+esc(n.to)+'</span>':''}</div>
+      </div>
+      <div class="a">${money(n.inr)}</div>
+      <button class="kebab" data-nri="${n.id}" aria-label="Edit receipt">⋯</button>
+    </div>`;
+  });
+  h+=`<div class="tfoot"><span>Total received</span><b>${money(recd)}</b></div></section>`;
+  return h;
+}
+
+function bind(){
+  document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{open=open===b.dataset.cat?null:b.dataset.cat;render();});
+  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>entryForm(b.dataset.edit));
+  document.querySelectorAll('[data-nri]').forEach(b=>b.onclick=()=>nriForm(b.dataset.nri));
+  const qi=document.getElementById('q');
+  if(qi) qi.oninput=e=>{q=e.target.value;const p=e.target.selectionStart;render();const n=document.getElementById('q');n.focus();n.setSelectionRange(p,p);};
+  const mo=document.getElementById('mon');
+  if(mo) mo.onchange=e=>{month=e.target.value;render();};
+}
+
+/* ---------- sheet ----------
+   Every sheet gets a title bar with ✕, and a ‹ back arrow when it was
+   opened from another sheet — so there is always one tap out of here. */
+let sheetBack=null;
+function sheet(title,html,back){
+  sheetBack=back||null;
+  document.getElementById('sheetTitle').textContent=title;
+  const bb=document.getElementById('sheetBack');
+  bb.hidden=!back;
+  document.getElementById('sheetBody').innerHTML=html;
+  document.getElementById('sheetBody').scrollTop=0;
+  document.getElementById('scrim').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+  document.body.classList.add('locked');
+}
+function closeSheet(){
+  document.getElementById('scrim').classList.remove('on');
+  document.getElementById('sheet').classList.remove('on');
+  document.body.classList.remove('locked');
+  sheetBack=null;
+}
+document.getElementById('scrim').onclick=closeSheet;
+document.getElementById('sheetX').onclick=closeSheet;
+document.getElementById('sheetBack').onclick=()=>{const f=sheetBack; if(f) f(); else closeSheet();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('sheet').classList.contains('on')) closeSheet();});
+
+/* ---------- entry form ---------- */
+function entryForm(id){
+  const e=S.entries.find(x=>x.id===id)||{id:null,project:tab==='nri'?'varanasi':tab,date:today(),cat:S.cats[0].id,amount:'',desc:'',payee:'',mode:'Cash',notes:''};
+  const groups=[...new Set(S.cats.map(c=>c.group||'Other'))];
+  sheet(id?'Edit entry':'New entry',`
+    <label>Project</label>
+    <select id="f_project">
+      <option value="varanasi" ${e.project==='varanasi'?'selected':''}>Varanasi accounts</option>
+      <option value="psr" ${e.project==='psr'?'selected':''}>PSR projects accounts</option>
+    </select>
+    <label>Category</label>
+    <select id="f_cat">
+      ${groups.map(g=>`<optgroup label="${esc(g)}">${S.cats.filter(c=>(c.group||'Other')===g).map(c=>`<option value="${c.id}" ${c.id===e.cat?'selected':''}>${esc(c.name)}</option>`).join('')}</optgroup>`).join('')}
+    </select>
+    <div class="two">
+      <div><label>Amount ₹</label><input id="f_amount" type="number" inputmode="decimal" value="${esc(e.amount)}" placeholder="0"></div>
+      <div><label>Date</label><input id="f_date" type="date" value="${esc(e.date)}"></div>
+    </div>
+    <label>What for</label>
+    <input id="f_desc" value="${esc(e.desc)}" placeholder="e.g. 40 bags cement">
+    <div class="two">
+      <div><label>Paid to</label><input id="f_payee" value="${esc(e.payee)}" placeholder="Name / firm"></div>
+      <div><label>Mode</label><select id="f_mode">${['Cash','Bank','UPI','Cheque'].map(m=>`<option ${m===e.mode?'selected':''}>${m}</option>`).join('')}</select></div>
+    </div>
+    <label>Notes</label>
+    <textarea id="f_notes" placeholder="Bill number, pending balance, anything to remember">${esc(e.notes)}</textarea>
+    <button class="btn" id="f_save">${id?'Save changes':'Add entry'}</button>
+    ${id?'<button class="btn danger" id="f_del">Delete entry</button>':''}
+    <button class="btn ghost" data-close>Cancel</button>
+  `);
+  document.getElementById('f_save').onclick=()=>{
+    const amt=+document.getElementById('f_amount').value;
+    if(!amt){toast('Enter an amount first');return;}
+    const o={
+      id:e.id||uid(),
+      project:document.getElementById('f_project').value,
+      cat:document.getElementById('f_cat').value,
+      amount:amt,
+      date:document.getElementById('f_date').value||today(),
+      desc:document.getElementById('f_desc').value.trim(),
+      payee:document.getElementById('f_payee').value.trim(),
+      mode:document.getElementById('f_mode').value,
+      notes:document.getElementById('f_notes').value.trim()
+    };
+    stamp(o);
+    if(e.id) S.entries=S.entries.map(x=>x.id===e.id?o:x); else S.entries.push(o);
+    closeSheet(); save(); toast(e.id?'Entry updated':'Entry added');
+  };
+  if(id) document.getElementById('f_del').onclick=()=>{
+    if(!confirm('Delete this entry permanently?'))return;
+    S.tomb[id]=Date.now();
+    S.entries=S.entries.filter(x=>x.id!==id); closeSheet(); save(); toast('Entry deleted');
+  };
+}
+
+/* ---------- NRI form ---------- */
+function nriForm(id){
+  const n=S.nri.find(x=>x.id===id)||{id:null,date:today(),from:'',inr:'',fx:'',cur:'USD',rate:'',to:'',notes:''};
+  sheet(id?'Edit receipt':'New receipt',`
+    <div class="two">
+      <div><label>Credited ₹</label><input id="n_inr" type="number" inputmode="decimal" value="${esc(n.inr)}" placeholder="0"></div>
+      <div><label>Date</label><input id="n_date" type="date" value="${esc(n.date)}"></div>
+    </div>
+    <label>Sent by</label>
+    <input id="n_from" value="${esc(n.from)}" placeholder="Name of sender">
+    <div class="two">
+      <div><label>Foreign amount</label><input id="n_fx" type="number" inputmode="decimal" value="${esc(n.fx)}" placeholder="0"></div>
+      <div><label>Currency</label><select id="n_cur">${['USD','CAD','GBP','AED','AUD','EUR'].map(c=>`<option ${c===n.cur?'selected':''}>${c}</option>`).join('')}</select></div>
+    </div>
+    <div class="two">
+      <div><label>Rate</label><input id="n_rate" type="number" inputmode="decimal" value="${esc(n.rate)}" placeholder="e.g. 86.4"></div>
+      <div><label>Meant for</label><select id="n_to">${['','Varanasi','PSR projects','Both / general'].map(c=>`<option value="${c}" ${c===n.to?'selected':''}>${c||'Not decided'}</option>`).join('')}</select></div>
+    </div>
+    <label>Notes</label>
+    <textarea id="n_notes" placeholder="Bank, reference number">${esc(n.notes)}</textarea>
+    <button class="btn" id="n_save">${id?'Save changes':'Add receipt'}</button>
+    ${id?'<button class="btn danger" id="n_del">Delete receipt</button>':''}
+    <button class="btn ghost" data-close>Cancel</button>
+  `);
+  document.getElementById('n_save').onclick=()=>{
+    const v=+document.getElementById('n_inr').value;
+    if(!v){toast('Enter the rupee amount');return;}
+    const o={id:n.id||uid(),inr:v,date:document.getElementById('n_date').value||today(),
+      from:document.getElementById('n_from').value.trim(),fx:document.getElementById('n_fx').value,
+      cur:document.getElementById('n_cur').value,rate:document.getElementById('n_rate').value,
+      to:document.getElementById('n_to').value,notes:document.getElementById('n_notes').value.trim()};
+    stamp(o);
+    if(n.id) S.nri=S.nri.map(x=>x.id===n.id?o:x); else S.nri.push(o);
+    closeSheet(); save(); toast(n.id?'Receipt updated':'Receipt added');
+  };
+  if(id) document.getElementById('n_del').onclick=()=>{
+    if(!confirm('Delete this receipt permanently?'))return;
+    S.tomb[id]=Date.now();
+    S.nri=S.nri.filter(x=>x.id!==id); closeSheet(); save(); toast('Receipt deleted');
+  };
+}
+
+/* ---------- categories ---------- */
+function catsSheet(){
+  const used={};S.entries.forEach(e=>used[e.cat]=(used[e.cat]||0)+1);
+  const groups=[...new Set(S.cats.map(c=>c.group||'Other'))]
+    .sort((a,b)=>GROUP_ORDER.indexOf(a)-GROUP_ORDER.indexOf(b));
+  sheet('Categories',`
+    <p class="note" style="margin-top:12px">Tap a category to rename it, move its entries somewhere else, or remove it.</p>
+    <button class="btn accent" id="c_new">+ Add a category</button>
+    ${groups.map(g=>`
+      <label>${esc(g)}</label>
+      ${S.cats.filter(c=>(c.group||'Other')===g).map(c=>`
+        <button class="pick" data-c="${c.id}"><b>${esc(c.name)}</b><em>${used[c.id]||0} entries</em></button>`).join('')}
+    `).join('')}
+    <button class="btn ghost" data-close>Done</button>
+  `);
+  document.getElementById('c_new').onclick=()=>catEdit(null);
+  document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>catEdit(b.dataset.c));
+}
+
+function catEdit(id){
+  const c=S.cats.find(x=>x.id===id)||{id:null,name:'',group:'Materials'};
+  const groups=[...new Set(S.cats.map(x=>x.group||'Other').concat(GROUP_ORDER))];
+  const n=S.entries.filter(e=>e.cat===id).length;
+  sheet(id?'Edit category':'New category',`
+    <label>Name</label>
+    <input id="c_name" value="${esc(c.name)}" placeholder="e.g. Borewell">
+    <label>Group it under</label>
+    <select id="c_grp">${groups.map(g=>`<option ${g===c.group?'selected':''}>${esc(g)}</option>`).join('')}</select>
+    <button class="btn" id="c_save">${id?'Save changes':'Add category'}</button>
+    ${id?`
+      <label>Move entries</label>
+      <select id="c_move"><option value="">Choose a category…</option>${S.cats.filter(x=>x.id!==id).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select>
+      <button class="btn ghost" id="c_movebtn">Move all ${n} entries there</button>
+      <button class="btn danger" id="c_del">Delete category</button>`:''}
+    <button class="btn ghost" id="c_back">Back to all categories</button>
+    <button class="btn ghost" data-close>Close</button>
+  `, catsSheet);
+  document.getElementById('c_back').onclick=catsSheet;
+  document.getElementById('c_save').onclick=()=>{
+    const nm=document.getElementById('c_name').value.trim();
+    if(!nm){toast('Give the category a name');return;}
+    const g=document.getElementById('c_grp').value;
+    if(id) S.cats=S.cats.map(x=>x.id===id?stamp({...x,name:nm,group:g}):x);
+    else S.cats.push(stamp({id:uid(),name:nm,group:g}));
+    save(); catsSheet(); toast(id?'Category updated':'Category added');
+  };
+  if(id){
+    document.getElementById('c_movebtn').onclick=()=>{
+      const t=document.getElementById('c_move').value;
+      if(!t){toast('Pick where the entries should go');return;}
+      S.entries=S.entries.map(e=>e.cat===id?stamp({...e,cat:t}):e);
+      save(); catsSheet(); toast(n+' entries moved to '+catName(t));
+    };
+    document.getElementById('c_del').onclick=()=>{
+      if(n){toast('Move its '+n+' entries out first');return;}
+      if(!confirm('Delete this category?'))return;
+      S.tomb[id]=Date.now();
+      S.cats=S.cats.filter(x=>x.id!==id); save(); catsSheet(); toast('Category deleted');
+    };
+  }
+}
+
+/* ---------- settings ---------- */
+function setSheet(){
+  sheet('Settings',`
+    <label>Firebase database URL</label>
+    <input id="s_fb" value="${esc(S.fb)}" placeholder="https://yourdb.firebasedatabase.app">
+    <p class="note">Every phone that opens this app with the same URL above shares one set of books. Entries merge together, so two people can add at the same time without wiping each other.</p>
+    <button class="btn" id="s_save">Save and sync now</button>
+    <button class="btn ghost" id="s_now">Force a sync right now</button>
+    <label>Backup</label>
+    <button class="btn ghost" id="s_csv">Download CSV of all entries</button>
+    <button class="btn ghost" id="s_json">Download full backup (JSON)</button>
+    <label>Restore</label>
+    <input id="s_file" type="file" accept=".json">
+    <button class="btn ghost" data-close>Close</button>
+  `);
+  document.getElementById('s_save').onclick=()=>{
+    S.fb=document.getElementById('s_fb').value.trim()||DEFAULT_FB;
+    save(false); syncNow(); closeSheet(); toast('Sync settings saved');
+  };
+  document.getElementById('s_now').onclick=()=>{ syncNow(); toast('Syncing…'); };
+  document.getElementById('s_csv').onclick=()=>{
+    const head='Project,Date,Category,Description,Paid to,Mode,Amount,Notes\n';
+    const body=S.entries.map(e=>[e.project,e.date,catName(e.cat),e.desc,e.payee,e.mode,e.amount,e.notes]
+      .map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const nri='\n\nNRI RECEIPTS\nDate,From,Currency,Foreign amount,Rate,INR,Meant for,Notes\n'+
+      S.nri.map(n=>[n.date,n.from,n.cur,n.fx,n.rate,n.inr,n.to,n.notes].map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    dl('project-accounts.csv',head+body+nri,'text/csv');
+  };
+  document.getElementById('s_json').onclick=()=>dl('project-accounts-backup.json',JSON.stringify(S),'application/json');
+  document.getElementById('s_file').onchange=ev=>{
+    const f=ev.target.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{try{S=Object.assign(fresh(),JSON.parse(r.result));
+      const t=Date.now();[].concat(S.entries,S.nri,S.cats).forEach(x=>{if(x)x.m=t;});
+      if(!S.tomb)S.tomb={};
+      save();closeSheet();toast('Backup restored');}catch(e){toast('That file could not be read')}};
+    r.readAsText(f);
+  };
+}
+function dl(name,txt,type){
+  const b=new Blob([txt],{type}); const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),3000);
+}
+
+/* ---------- wiring ---------- */
+document.getElementById('sheetBody').addEventListener('click',e=>{
+  if(e.target.closest('[data-close]')) closeSheet();
+});
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{tab=b.dataset.k;open=null;q='';month='';render();});
+document.getElementById('fab').onclick=()=>tab==='nri'?nriForm(null):entryForm(null);
+document.getElementById('btnCats').onclick=catsSheet;
+document.getElementById('btnSet').onclick=setSheet;
+
+render(); syncNow(); liveOn();
+
+/* poll every 6s while the app is on screen, stop while it is in the background */
+let poll=null;
+function pollOn(){ if(!poll) poll=setInterval(()=>syncNow(true),6000); }
+function pollOff(){ if(poll){ clearInterval(poll); poll=null; } }
+pollOn();
+
+function wake(){ pollOn(); liveOn(); syncNow(true); }
+document.addEventListener('visibilitychange',()=>{ document.hidden?(pollOff(),liveOff()):wake(); });
+window.addEventListener('pageshow',wake);   /* iOS restores from frozen state */
+window.addEventListener('focus',wake);
+window.addEventListener('online',wake);
+</script>
+</body>
+</html>
